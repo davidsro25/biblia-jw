@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model DailyExam {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @unique @db.Date
+  title     String
+  verse     String
+  content   String   @db.Text
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Meeting {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @db.Date
+  type      String
+  title     String?
+  program   String?  @db.Text
+  notes     String?  @db.Text
+  attended  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  type      String
+  title     String
+  content   String   @db.Text
+  date      DateTime @db.Date
+  tags      String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MinistryReport {
+  id             Int      @id @default(autoincrement())
+  month          DateTime @unique @db.Date
+  hours          Float    @default(0)
+  placements     Int      @default(0)
+  videoShown     Int      @default(0)
+  returnVisits   Int      @default(0)
+  bibleStudies   Int      @default(0)
+  considerations String?  @db.Text
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model ReadingPlan {
+  id          Int               @id @default(autoincrement())
+  name        String
+  type        String
+  description String?
+  books       String[]
+  startDate   DateTime          @db.Date
+  endDate     DateTime          @db.Date
+  alarmTime   String?
+  alarmDays   String[]
+  active      Boolean           @default(true)
+  progress    ReadingProgress[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model ReadingProgress {
+  id          Int         @id @default(autoincrement())
+  plan        ReadingPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  planId      Int
+  book        String
+  chapter     Int
+  completed   Boolean     @default(false)
+  completedAt DateTime?
+  createdAt   DateTime    @default(now())
+  @@unique([planId, book, chapter])
+}
