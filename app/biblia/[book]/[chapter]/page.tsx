@@ -10,8 +10,10 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
   const bookInfo = BIBLE_BOOKS[bookIndex]
   if (!bookInfo) return <div className="p-6">Livro não encontrado.</div>
 
-  let data: { title: string; verses: Array<{ num: number; text: string }> } | null = null
+  let data: { audioWolUrl: string | null; verses: Array<{ num: number; text: string; refs: string[] }> } | null = null
   try { data = await fetchBibleChapter(bookIndex + 1, chapterNum) } catch {}
+
+  const wolUrl = `https://wol.jw.org/pt/wol/b/r5/lp-t/nwtsty/${bookIndex + 1}/${chapterNum}`
 
   return (
     <div className="p-6 max-w-2xl mx-auto">
@@ -21,7 +23,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
         <span className="text-slate-600">{bookInfo.name}</span>
       </div>
 
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-slate-800">{bookInfo.name} {chapterNum}</h1>
         <div className="flex gap-2">
           {chapterNum > 1 && (
@@ -35,7 +37,20 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
         </div>
       </div>
 
-      <div className="flex gap-1.5 flex-wrap mb-5">
+      {/* Áudio */}
+      <div className="flex gap-3 mb-4">
+        <a href={data?.audioWolUrl ?? wolUrl} target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors">
+          🔊 Ouvir no WOL
+        </a>
+        <a href={wolUrl} target="_blank" rel="noopener noreferrer"
+          className="flex items-center gap-2 bg-slate-50 border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-sm hover:bg-slate-100 transition-colors">
+          📖 Abrir no WOL
+        </a>
+      </div>
+
+      {/* Navegação de capítulos */}
+      <div className="flex gap-1 flex-wrap mb-5">
         {Array.from({ length: bookInfo.chapters }, (_, i) => i + 1).map(n => (
           <Link key={n} href={`/biblia/${book}/${n}`}
             className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors
@@ -46,26 +61,31 @@ export default async function ChapterPage({ params }: { params: Promise<{ book: 
       </div>
 
       {data && data.verses.length > 0 ? (
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-2">
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-3">
           {data.verses.map(v => (
-            <p key={v.num} className="text-slate-700 text-sm leading-relaxed">
-              <sup className="text-[#1a56a4] font-semibold mr-1 text-xs">{v.num}</sup>{v.text}
-            </p>
+            <div key={v.num} className="group">
+              <p className="text-slate-700 text-sm leading-relaxed">
+                <sup className="text-[#1a56a4] font-bold mr-1 text-xs">{v.num}</sup>
+                {v.text}
+              </p>
+              {v.refs.length > 0 && (
+                <div className="mt-1 pl-4 flex flex-wrap gap-1">
+                  {v.refs.map((ref, ri) => (
+                    <span key={ri} className="text-xs text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">{ref}</span>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       ) : (
         <div className="bg-white rounded-2xl p-8 text-center text-slate-400 shadow-sm border border-slate-100">
-          <p>Capítulo não disponível no momento.</p>
+          <p>Capítulo não disponível.</p>
+          <a href={wolUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 text-sm hover:underline mt-2 block">
+            Abrir no WOL →
+          </a>
         </div>
       )}
-
-      <div className="mt-4 text-center">
-        <a href={`https://wol.jw.org/pt/wol/b/r5/lp-t/nwtsty/${bookIndex + 1}/${chapterNum}`}
-          target="_blank" rel="noopener noreferrer"
-          className="text-xs text-blue-500 hover:underline">
-          Abrir no WOL →
-        </a>
-      </div>
     </div>
   )
 }

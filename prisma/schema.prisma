@@ -84,3 +84,24 @@ model ReadingProgress {
   createdAt   DateTime    @default(now())
   @@unique([planId, book, chapter])
 }
+
+model MinistryActivity {
+  id           Int      @id @default(autoincrement())
+  date         DateTime @db.Date
+  hours        Float    @default(0)
+  placements   Int      @default(0)
+  videoShown   Int      @default(0)
+  returnVisits Int      @default(0)
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MinistryGoal {
+  id           Int      @id @default(autoincrement())
+  year         Int      @unique
+  monthlyHours Float    @default(0)
+  yearlyHours  Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
