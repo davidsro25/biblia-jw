@@ -66,6 +66,8 @@ model ReadingPlan {
   alarmTime   String?
   alarmDays   String[]
   active      Boolean           @default(true)
+  totalDays   Int      @default(0)
+  daysCompleted Int    @default(0)
   progress    ReadingProgress[]
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
